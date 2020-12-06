@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"sort"
 )
 
 // Day5 contains the answer for Day 5's challenge.
@@ -37,6 +38,7 @@ func Day5() {
 		ids[i] = getSeatID(row, column)
 	}
 
+	// Get the max value for part one.
 	max := ids[0]
 	for _, value := range ids {
 		if value > max {
@@ -44,6 +46,18 @@ func Day5() {
 		}
 	}
 	fmt.Println(max)
+
+	// Find the missing value for part two.
+	sort.Ints(ids[:]) // Sort the ids.
+
+	for i := 1; i < len(ids)-1; i++ {
+		// Check if these values are sequential.
+		if ids[i-1]+1 != ids[i] {
+			// Add one since the actual value is missing.
+			fmt.Println(ids[i-1] + 1)
+			return
+		}
+	}
 }
 
 func getSeatRow(seat string) int {
