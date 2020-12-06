@@ -6,6 +6,8 @@ import (
 	"log"
 	"regexp"
 	"strings"
+
+	"github.com/juliangruber/go-intersect"
 )
 
 // Day6 contains the answer for Day 6's challenge.
@@ -20,9 +22,9 @@ func Day6() {
 	text := string(content)
 
 	// Separates groups from each other.
-	pattern := regexp.MustCompile(`\n\n`)
+	groupSeparator := regexp.MustCompile(`\n\n`)
 
-	groups := pattern.Split(text, -1)
+	groups := groupSeparator.Split(text, -1)
 
 	// Part one.
 
@@ -35,15 +37,47 @@ func Day6() {
 
 	// Print the total count.
 	fmt.Println(sumCounts)
+
+	// Part two.
+
+	// The sum of all of the common yes questions per group.
+	sumCommon := 0
+
+	// Separates respondents from each other.
+	respondentsSeparator := regexp.MustCompile(`\n`)
+
+	for _, group := range groups {
+		respondents := respondentsSeparator.Split(group, -1)
+		firstResponseChars := stringToCharsArray(respondents[0])
+
+		// This will just be the first response's values.
+		commonChars := intersect.Simple(firstResponseChars, firstResponseChars)
+
+		for _, response := range respondents {
+			responseAsChars := stringToCharsArray(response)
+			commonChars = intersect.Simple(commonChars, responseAsChars)
+		}
+		// commonChars should now only contain the questions to which all
+		// respondents in the group answered yes.
+		sumCommon += len(commonChars)
+	}
+
+	fmt.Println(sumCommon)
 }
 
+func stringToCharsArray(input string) []string {
+	return strings.Split(input, "")
+}
+
+// Count the number of unique characters in a string. (Excludes newlines.)
 func countUniqueCharacters(input string) int {
-	characters := strings.Split(input, "")
+	characters := stringToCharsArray(input)
 	uniqueChars := unique(characters)
 	charsNoNewlines := removeNewLines(uniqueChars)
 	return len(charsNoNewlines)
 }
 
+// Removes the newline character from a slice of strings.
 func removeNewLines(characters []string) []string {
 	for index, character := range characters {
 		if character == "\n" {
